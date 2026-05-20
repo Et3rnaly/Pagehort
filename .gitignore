@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Caches
+.cache/
+.turbo/
+.eslintcache
+
+# Coverage
+coverage/
+
+# System and editor files
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+*.swp
+*.swo
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Vercel
+.vercel/
+
+# v0 sandbox internal files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
