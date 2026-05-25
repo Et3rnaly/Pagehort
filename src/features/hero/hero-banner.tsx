@@ -67,6 +67,7 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
     hasHorizontalIntent: false,
   })
   const hasMultipleBanners = imageBanners.length > 1
+  const activeIndex = imageBanners.length ? currentIndex % imageBanners.length : 0
 
   const pauseAutoplayTemporarily = useCallback(() => {
     if (!hasMultipleBanners) return
@@ -87,10 +88,10 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
     (nextIndex: number) => {
       if (!imageBanners.length) return
 
-      setDirection(nextIndex >= currentIndex ? 1 : -1)
+      setDirection(nextIndex >= activeIndex ? 1 : -1)
       setCurrentIndex((nextIndex + imageBanners.length) % imageBanners.length)
     },
-    [currentIndex, imageBanners.length]
+    [activeIndex, imageBanners.length]
   )
 
   const goToPrevious = useCallback(() => {
@@ -105,10 +106,10 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
 
   const getSlidePosition = useCallback(
     (index: number) => {
-      if (index === currentIndex) return 0
+      if (index === activeIndex) return 0
 
-      const previousIndex = (currentIndex - 1 + imageBanners.length) % imageBanners.length
-      const nextIndex = (currentIndex + 1) % imageBanners.length
+      const previousIndex = (activeIndex - 1 + imageBanners.length) % imageBanners.length
+      const nextIndex = (activeIndex + 1) % imageBanners.length
 
       if (index === previousIndex && index === nextIndex) {
         return dragOffset > 0 || direction < 0 ? -1 : 1
@@ -117,9 +118,9 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
       if (index === previousIndex) return -1
       if (index === nextIndex) return 1
 
-      return index > currentIndex ? 2 : -2
+      return index > activeIndex ? 2 : -2
     },
-    [currentIndex, direction, dragOffset, imageBanners.length]
+    [activeIndex, direction, dragOffset, imageBanners.length]
   )
 
   const finishDrag = useCallback(
@@ -258,12 +259,6 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
   )
 
   useEffect(() => {
-    if (currentIndex <= imageBanners.length - 1) return
-
-    setCurrentIndex(0)
-  }, [currentIndex, imageBanners.length])
-
-  useEffect(() => {
     if (!hasMultipleBanners || isAutoplayPaused) return
 
     const interval = window.setInterval(goToNext, AUTOPLAY_DELAY)
@@ -283,21 +278,6 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
     }
   }, [])
 
-  useEffect(() => {
-    if (!imageBanners.length) return
-
-    const preloadIndexes = new Set([
-      currentIndex,
-      (currentIndex + 1) % imageBanners.length,
-      (currentIndex - 1 + imageBanners.length) % imageBanners.length,
-    ])
-
-    preloadIndexes.forEach((index) => {
-      const preloadImage = new window.Image()
-      preloadImage.src = imageBanners[index].image
-    })
-  }, [currentIndex, imageBanners])
-
   if (!imageBanners.length) return null
 
   return (
@@ -305,7 +285,7 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
       <div className="relative mx-auto w-full max-w-[1560px] px-3 sm:px-5 lg:px-8 xl:px-10">
         <div
           ref={viewportRef}
-          className={`relative overflow-hidden rounded-2xl bg-[#102410] shadow-[0_18px_45px_rgba(31,41,55,0.08)] select-none touch-pan-y ${
+          className={`relative overflow-hidden rounded-2xl bg-[#102410] shadow-[0_14px_34px_rgba(31,41,55,0.08)] select-none touch-pan-y ${
             hasMultipleBanners ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""
           }`}
           style={{ height: "clamp(190px, 28vw, 450px)" }}
@@ -316,16 +296,18 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
           onWheel={handleWheel}
         >
           {imageBanners.map((banner, index) => {
-            const isActive = index === currentIndex
+            const isActive = index === activeIndex
             const slidePosition = getSlidePosition(index)
             const isNearbySlide = Math.abs(slidePosition) <= 1
+
+            if (!isNearbySlide) return null
 
             return (
               <div
                 key={banner.id}
                 className={`absolute inset-0 bg-[#102410] will-change-transform ${
                   isDragging ? "" : "transition-transform duration-[650ms] ease-out"
-                } ${isNearbySlide ? "opacity-100" : "opacity-0"} ${isActive ? "z-10" : "z-0"}`}
+                } opacity-100 ${isActive ? "z-10" : "z-0"}`}
                 style={{
                   transform: `translate3d(calc(${slidePosition * 100}% + ${dragOffset}px), 0, 0)`,
                 }}
@@ -336,7 +318,7 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
                   alt={banner.title}
                   fill
                   priority={index === 0}
-                  loading={index === 0 ? undefined : "eager"}
+                  loading={index === 0 ? undefined : "lazy"}
                   sizes="(min-width: 1600px) 1480px, (min-width: 1024px) calc(100vw - 80px), calc(100vw - 24px)"
                   draggable={false}
                   style={{
@@ -387,10 +369,10 @@ export function HeroBanner({ banners = heroBanners }: HeroBannerProps) {
                 <button
                   key={banner.id}
                   className={`h-2.5 rounded-full transition-all duration-300 ${
-                    index === currentIndex ? "w-8 bg-card" : "w-2.5 bg-card/55 hover:bg-card/80"
+                    index === activeIndex ? "w-8 bg-card" : "w-2.5 bg-card/55 hover:bg-card/80"
                   }`}
                   role="tab"
-                  aria-selected={index === currentIndex}
+                  aria-selected={index === activeIndex}
                   aria-label={`Banner ${index + 1}`}
                   onClick={() => {
                     pauseAutoplayTemporarily()
