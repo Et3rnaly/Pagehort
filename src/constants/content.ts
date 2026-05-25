@@ -11,7 +11,7 @@ export const contentArticles: Article[] = [
     description: "Com poucos ingredientes e preparo rápido, é possível variar sabores...",
     image: "🍹",
     type: "blog",
-    href: "/blog/receitas-sucos-saudaveis",
+    href: "#conteudos",
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ export const contentArticles: Article[] = [
     description: "Comida fitness sem complicação: menos tempo na cozinha, mais...",
     image: "🥗",
     type: "blog",
-    href: "/blog/comida-fitness-rapida",
+    href: "#conteudos",
   },
   {
     id: 3,
@@ -27,7 +27,7 @@ export const contentArticles: Article[] = [
     description: "Entre os destaques do mês, a mini tangerina chama a atenção pela...",
     image: "🍊",
     type: "blog",
-    href: "/blog/safra-do-mes",
+    href: "#conteudos",
   },
   {
     id: 4,
@@ -35,7 +35,7 @@ export const contentArticles: Article[] = [
     description: "A alimentação saudável é peça chave para o desenvolvimento da...",
     image: "👶",
     type: "blog",
-    href: "/blog/alimentacao-infantil",
+    href: "#conteudos",
   },
   {
     id: 5,
@@ -43,7 +43,7 @@ export const contentArticles: Article[] = [
     description: "O sorvete fit de abacaxi pérola é daquelas receitas que vão entrar...",
     image: "🍍",
     type: "receita",
-    href: "/receitas/sorvete-fit-abacaxi",
+    href: "#conteudos",
   },
   {
     id: 6,
@@ -51,6 +51,6 @@ export const contentArticles: Article[] = [
     description: "Esse prato combina versatilidade e sabor marcante devido...",
     image: "🐟",
     type: "receita",
-    href: "/receitas/salada-bacalhau",
+    href: "#conteudos",
   },
 ]

@@ -1,5 +1,3 @@
-"use client"
-
 import { SectionHeader } from "@/src/components/shared"
 import { contentArticles } from "@/src/constants"
 import type { Article } from "@/src/types"
@@ -10,11 +8,11 @@ interface ContentSectionProps {
 
 export function ContentSection({ articles = contentArticles }: ContentSectionProps) {
   return (
-    <section className="py-8 bg-muted" aria-labelledby="content-title">
+    <section id="conteudos" className="scroll-mt-40 bg-muted py-8" aria-labelledby="content-title">
       <div className="container mx-auto px-4">
         <SectionHeader
           title="Inspire-se com nossos conteúdos"
-          viewAllHref="/blog"
+          titleId="content-title"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

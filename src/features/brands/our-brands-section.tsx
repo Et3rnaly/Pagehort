@@ -1,5 +1,3 @@
-"use client"
-
 import { SectionHeader, HorizontalCarousel } from "@/src/components/shared"
 import { AddToCartButton } from "@/src/features/cart"
 import type { Product } from "@/src/types"
@@ -15,7 +13,7 @@ export function OurBrandsSection({ products = [] }: OurBrandsSectionProps) {
         <SectionHeader
           title="Nossa Marca"
           badge="APROVEITE"
-          viewAllHref="/nossa-marca"
+          titleId="brands-title"
         />
 
         <HorizontalCarousel showNavigation={false}>

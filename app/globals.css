@@ -5,6 +5,8 @@
 
 :root {
   /* Zé das Frutas - Fresh Green Theme */
+  --font-sans-stack: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-mono-stack: "Cascadia Code", "Segoe UI Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --background: oklch(0.985 0.002 120);
   --foreground: oklch(0.2 0.02 150);
   --card: oklch(1 0 0);
@@ -77,8 +79,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

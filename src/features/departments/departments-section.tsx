@@ -1,5 +1,3 @@
-"use client"
-
 import { departments } from "@/src/constants"
 import type { Department } from "@/src/types"
 
@@ -9,7 +7,7 @@ interface DepartmentsSectionProps {
 
 export function DepartmentsSection({ items = departments }: DepartmentsSectionProps) {
   return (
-    <section className="py-8 bg-card" aria-labelledby="departments-title">
+    <section id="departamentos" className="scroll-mt-40 bg-card py-8" aria-labelledby="departments-title">
       <div className="container mx-auto px-4">
         <h2 id="departments-title" className="text-xl font-semibold text-foreground mb-6">
           Compre por departamento

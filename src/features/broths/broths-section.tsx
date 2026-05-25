@@ -1,6 +1,6 @@
-"use client"
-
-import { SectionHeader, ProductCard, HorizontalCarousel } from "@/src/components/shared"
+import { HorizontalCarousel } from "@/src/components/shared/horizontal-carousel"
+import { ProductCard } from "@/src/components/shared/product-card"
+import { SectionHeader } from "@/src/components/shared/section-header"
 import type { Product } from "@/src/types"
 
 interface BrothsSectionProps {
@@ -13,7 +13,7 @@ export function BrothsSection({ products = [] }: BrothsSectionProps) {
       <div className="container mx-auto px-4">
         <SectionHeader
           title="Sopas e Caldos"
-          viewAllHref="/caldos"
+          titleId="broths-title"
         />
 
         <HorizontalCarousel showNavigation={false}>

@@ -1,5 +1,3 @@
-"use client"
-
 import { Truck, Clock, Shield, Leaf } from "lucide-react"
 import { SectionHeader } from "@/src/components/shared"
 import type { Feature } from "@/src/types"
@@ -33,11 +31,12 @@ interface PracticalitySectionProps {
 
 export function PracticalitySection({ items = features }: PracticalitySectionProps) {
   return (
-    <section className="py-12 bg-card" aria-labelledby="practicality-title">
+    <section id="praticidade" className="scroll-mt-40 bg-card py-12" aria-labelledby="practicality-title">
       <div className="container mx-auto px-4">
         <SectionHeader
           title="Praticidade para o seu dia a dia"
           centered
+          titleId="practicality-title"
         />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

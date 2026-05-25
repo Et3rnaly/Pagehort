@@ -1,5 +1,3 @@
-"use client"
-
 import { SectionHeader, ProductCard, HorizontalCarousel } from "@/src/components/shared"
 import type { Product } from "@/src/types"
 
@@ -13,7 +11,7 @@ export function SpecialDietsSection({ products = [] }: SpecialDietsSectionProps)
       <div className="container mx-auto px-4">
         <SectionHeader
           title="Dietas Especiais"
-          viewAllHref="/dietas-especiais"
+          titleId="diets-title"
         />
 
         <HorizontalCarousel showNavigation={false}>

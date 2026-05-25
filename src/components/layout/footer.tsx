@@ -1,9 +1,7 @@
-"use client"
-
 import { Facebook, Instagram, Youtube, Linkedin } from "lucide-react"
 import { footerLinks } from "@/src/config/navigation"
 import { siteConfig } from "@/src/config/site"
-import Image from "next/image";
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 interface FooterProps {
@@ -11,6 +9,26 @@ interface FooterProps {
 }
 
 export function Footer({ className }: FooterProps) {
+  const visibleSocialLinks = [
+    { icon: Facebook, href: siteConfig.social.facebook, label: "Facebook" },
+    { icon: Instagram, href: siteConfig.social.instagram, label: "Instagram" },
+    { icon: Youtube, href: siteConfig.social.youtube, label: "YouTube" },
+    { icon: Linkedin, href: siteConfig.social.linkedin, label: "LinkedIn" },
+  ].filter((link) => link.href && link.href !== "#")
+
+  const visibleFooterGroups = [
+    footerLinks.institucional,
+    footerLinks.ajuda,
+    footerLinks.contato,
+  ]
+    .map((group) => ({
+      title: group.title,
+      links: group.links.flatMap((link) =>
+        "href" in link ? [{ label: link.label, href: link.href }] : []
+      ),
+    }))
+    .filter((group) => group.links.length > 0)
+
   return (
     <footer className={cn("bg-foreground text-card", className)}>
       <div className="container mx-auto px-4 py-12">
@@ -21,11 +39,11 @@ export function Footer({ className }: FooterProps) {
               <div className="w-10 h-10 rounded-full flex items-center justify-center">
                 <span className="flex items-center">
                   <Image
-                     src="/logo.png"
+                     src="/logo.webp"
                      alt="Logo da marca"
                      width={120}
                      height={40}
-                     priority
+                     sizes="40px"
                  />
                  </span>
               </div>
@@ -37,79 +55,36 @@ export function Footer({ className }: FooterProps) {
             <p className="text-sm text-card/70 mb-4">
               {siteConfig.description}
             </p>
-            <div className="flex gap-4">
-              <a 
-                href={siteConfig.social.facebook} 
-                className="text-card/70 hover:text-card transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a 
-                href={siteConfig.social.instagram} 
-                className="text-card/70 hover:text-card transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a 
-                href={siteConfig.social.youtube} 
-                className="text-card/70 hover:text-card transition-colors"
-                aria-label="YouTube"
-              >
-                <Youtube className="h-5 w-5" />
-              </a>
-              <a 
-                href={siteConfig.social.linkedin} 
-                className="text-card/70 hover:text-card transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="h-5 w-5" />
-              </a>
+            {visibleSocialLinks.length > 0 && (
+              <div className="flex gap-4">
+                {visibleSocialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="text-card/70 hover:text-card transition-colors"
+                    aria-label={link.label}
+                  >
+                    <link.icon className="h-5 w-5" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {visibleFooterGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="font-semibold text-card mb-4">{group.title}</h3>
+              <ul className="space-y-2">
+                {group.links.map((link) => (
+                <li key={link.label}>
+                  <a href={link.href} className="text-sm text-card/70 hover:text-card transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+              </ul>
             </div>
-          </div>
-
-          {/* Institucional */}
-          <div>
-            <h3 className="font-semibold text-card mb-4">{footerLinks.institucional.title}</h3>
-            <ul className="space-y-2">
-              {footerLinks.institucional.links.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-sm text-card/70 hover:text-card transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Ajuda */}
-          <div>
-            <h3 className="font-semibold text-card mb-4">{footerLinks.ajuda.title}</h3>
-            <ul className="space-y-2">
-              {footerLinks.ajuda.links.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-sm text-card/70 hover:text-card transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contato */}
-          <div>
-            <h3 className="font-semibold text-card mb-4">{footerLinks.contato.title}</h3>
-            <ul className="space-y-2">
-              {footerLinks.contato.links.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-sm text-card/70 hover:text-card transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          ))}
         </div>
 
         {/* Payment Methods and Certifications */}

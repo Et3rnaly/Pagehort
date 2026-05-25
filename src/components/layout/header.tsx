@@ -1,14 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Heart, MapPin, User, ShoppingCart, Menu, ChevronDown, X } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+import { Search, User, ShoppingCart, Menu, ChevronDown, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { mainNavLinks } from "@/src/config/navigation"
 import { siteConfig } from "@/src/config/site"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
-import { CartSheet, getCartItemCount, useCartStore } from "@/src/features/cart"
+import { CartSheet } from "@/src/features/cart/cart-sheet"
+import { useCartStore } from "@/src/features/cart/cart-store"
 
 interface HeaderProps {
   className?: string
@@ -16,8 +18,9 @@ interface HeaderProps {
 
 export function Header({ className }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const cartItems = useCartStore((state) => state.items)
-  const cartItemCount = getCartItemCount(cartItems)
+  const cartItemCount = useCartStore((state) =>
+    state.items.reduce((total, item) => total + item.quantity, 0)
+  )
   const cartBadgeText = cartItemCount > 99 ? "99+" : String(cartItemCount)
   const wideContainer = "mx-auto w-full max-w-[1560px] px-3 sm:px-5 lg:px-8 xl:px-10"
 
@@ -44,20 +47,20 @@ export function Header({ className }: HeaderProps) {
           </Button>
 
           {/* Logo */}
-          <a href="/" className="mr-8 flex shrink-0 items-center gap-3 lg:mr-12 xl:mr-16">
+          <Link href="/" className="mr-8 flex shrink-0 items-center gap-3 lg:mr-12 xl:mr-16">
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="Logo da marca"
               width={72}
               height={72}
               className="h-12 w-12 rounded-full object-contain sm:h-14 sm:w-14 lg:h-16 lg:w-16"
-              priority
+              sizes="(min-width: 1024px) 64px, (min-width: 640px) 56px, 48px"
             />
             <div className="hidden min-w-0 sm:block">
               <span className="text-xl font-bold leading-tight text-primary lg:text-2xl">{siteConfig.name}</span>
               <p className="text-xs text-muted-foreground">{siteConfig.tagline}</p>
             </div>
-          </a>
+          </Link>
 
           {/* Search Bar */}
           <div className="mr-2 hidden flex-1 md:flex lg:mr-5 xl:mr-8">
@@ -74,31 +77,13 @@ export function Header({ className }: HeaderProps) {
 
           {/* Actions */}
           <div className="flex shrink-0 items-center gap-2.5 lg:gap-3 xl:gap-4">
-            <a
-              href="/listas"
-              className="hidden items-center gap-2 whitespace-nowrap rounded-full border border-black/5 bg-[#f8f8f5] px-4 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-white xl:flex"
-            >
-              <Heart className="h-[18px] w-[18px]" />
-              <span>Listas de compras</span>
-              <ChevronDown className="h-4 w-4 text-primary/70" />
-            </a>
-
-            <button
-              className="hidden items-center gap-2 whitespace-nowrap rounded-full border border-black/5 bg-[#f8f8f5] px-4 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-white xl:flex"
-              aria-label="Adicionar localização"
-            >
-              <MapPin className="h-[18px] w-[18px]" />
-              <span>Adicionar localização</span>
-              <ChevronDown className="h-4 w-4 text-primary/70" />
-            </button>
-
-            <button
-              className="flex items-center gap-2 whitespace-nowrap rounded-full border border-black/5 bg-[#f8f8f5] px-3.5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-white lg:px-4"
+            <div
+              className="flex items-center gap-2 whitespace-nowrap rounded-full border border-black/5 bg-[#f8f8f5] px-3.5 py-2.5 text-sm font-medium text-primary lg:px-4"
               aria-label="Conta do usuário"
             >
               <User className="h-[18px] w-[18px]" />
               <span className="hidden lg:inline">Bem-vindo(a)</span>
-            </button>
+            </div>
 
             <CartSheet>
               <button
@@ -132,10 +117,13 @@ export function Header({ className }: HeaderProps) {
       <nav aria-label="Navegação principal">
         <div className={wideContainer}>
           <div className="scrollbar-hide flex items-center gap-4 overflow-x-auto pb-5 pt-1 lg:gap-5">
-            <Button className="flex h-11 shrink-0 items-center gap-2 rounded-full border border-green-950/20 bg-primary px-5 text-primary-foreground shadow-none transition-colors hover:bg-primary/90 lg:px-6">
+            <a
+              href="#departamentos"
+              className="flex h-11 shrink-0 items-center gap-2 rounded-full border border-green-950/20 bg-primary px-5 text-sm font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90 lg:px-6"
+            >
               <span>Compre por departamento</span>
               <ChevronDown className="h-4 w-4" />
-            </Button>
+            </a>
 
             <div className="hidden h-8 w-px shrink-0 bg-black/10 sm:block" aria-hidden="true" />
 

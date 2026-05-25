@@ -1,7 +1,7 @@
-"use client"
-
+import Image from "next/image"
 import { Heart } from "lucide-react"
-import { AddToCartButton } from "@/src/features/cart"
+import { AddToCartButton } from "@/src/features/cart/add-to-cart-button"
+import { isRemoteImageSource } from "@/src/lib/images"
 import type { Product } from "@/src/types"
 
 interface ProductCardProps {
@@ -13,8 +13,8 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
   if (variant === "compact") {
     return (
       <div className="min-w-[180px] bg-card rounded-xl border border-border p-4 hover:shadow-lg transition-shadow">
-        <div className="aspect-square bg-muted rounded-lg flex items-center justify-center mb-3">
-          <span className="text-5xl">{product.image}</span>
+        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+          <ProductVisual product={product} emojiClassName="text-5xl" />
         </div>
         <h3 className="text-sm font-medium text-foreground mb-2 line-clamp-2">
           {product.name}
@@ -38,8 +38,8 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
               {product.tag}
             </span>
           )}
-          <div className="aspect-square bg-muted rounded-lg flex items-center justify-center mb-3 pt-6">
-            <span className="text-5xl">{product.image}</span>
+          <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center mb-3 overflow-hidden pt-6">
+            <ProductVisual product={product} emojiClassName="text-5xl" />
           </div>
         </div>
         <h3 className="text-sm font-medium text-foreground mb-2">
@@ -55,18 +55,20 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
     )
   }
 
+  const badge = product.tag ?? (product.isNew ? "Novidade!" : null)
+
   return (
     <div className="min-w-[200px] max-w-[200px] bg-card rounded-xl border border-border p-4 group">
       {/* Product Image */}
       <div className="relative mb-3">
-        <div className="aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-          <span className="text-6xl">{product.image}</span>
+        <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+          <ProductVisual product={product} emojiClassName="text-6xl" />
         </div>
         
         {/* Badges */}
-        {product.isNew && (
+        {badge && (
           <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
-            Novidade!
+            {badge}
           </span>
         )}
         
@@ -115,4 +117,28 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
       <AddToCartButton product={product} className="mt-3 w-full rounded-full" />
     </div>
   )
+}
+
+function ProductVisual({
+  product,
+  emojiClassName,
+}: {
+  product: Product
+  emojiClassName: string
+}) {
+  if (product.imageUrl) {
+    return (
+      <Image
+        src={product.imageUrl}
+        alt={product.name}
+        fill
+        sizes="(min-width: 768px) 200px, 180px"
+        className="object-cover"
+        loading="lazy"
+        unoptimized={isRemoteImageSource(product.imageUrl)}
+      />
+    )
+  }
+
+  return <span className={emojiClassName}>{product.image}</span>
 }

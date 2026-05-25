@@ -1,32 +1,32 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
+import { useState } from "react"
+import type { FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { siteConfig } from "@/src/config/site"
 
-const newsletterSchema = z.object({
-  email: z.string().email("Por favor, insira um e-mail válido"),
-})
-
-type NewsletterFormData = z.infer<typeof newsletterSchema>
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function NewsletterSection() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<NewsletterFormData>({
-    resolver: zodResolver(newsletterSchema),
-  })
+  const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const onSubmit = async (data: NewsletterFormData) => {
-    // TODO: Implement newsletter subscription API call
-    console.log("Newsletter subscription:", data.email)
-    reset()
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const email = String(formData.get("email") ?? "").trim()
+
+    if (!EMAIL_PATTERN.test(email)) {
+      setError("Por favor, insira um e-mail válido")
+      return
+    }
+
+    setError("")
+    setIsSubmitting(true)
+    form.reset()
+    setIsSubmitting(false)
   }
 
   return (
@@ -43,25 +43,30 @@ export function NewsletterSection() {
             </div>
           </div>
 
-          <form 
-            onSubmit={handleSubmit(onSubmit)} 
+          <form
+            onSubmit={handleSubmit}
             className="flex flex-col sm:flex-row gap-2 w-full md:w-auto"
           >
             <div className="flex flex-col">
-              <Input 
-                type="email" 
+              <Input
+                name="email"
+                type="email"
+                required
                 placeholder="Digite seu e-mail"
                 className="bg-primary-foreground text-foreground rounded-full px-4 py-2 min-w-[250px]"
-                aria-describedby={errors.email ? "email-error" : undefined}
-                {...register("email")}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "email-error" : undefined}
+                onChange={() => {
+                  if (error) setError("")
+                }}
               />
-              {errors.email && (
+              {error && (
                 <span id="email-error" className="text-xs text-primary-foreground/80 mt-1 ml-4">
-                  {errors.email.message}
+                  {error}
                 </span>
               )}
             </div>
-            <Button 
+            <Button
               type="submit"
               disabled={isSubmitting}
               className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-full px-6"

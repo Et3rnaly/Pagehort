@@ -1,6 +1,3 @@
-"use client"
-
-import { ChevronRight } from "lucide-react"
 import { SectionHeader } from "@/src/components/shared"
 import { promotionalOffers } from "@/src/constants"
 import type { Offer } from "@/src/types"
@@ -11,12 +8,11 @@ interface OffersSectionProps {
 
 export function OffersSection({ offers = promotionalOffers }: OffersSectionProps) {
   return (
-    <section className="py-8 bg-muted" aria-labelledby="offers-title">
+    <section id="ofertas" className="scroll-mt-40 bg-muted py-8" aria-labelledby="offers-title">
       <div className="container mx-auto px-4">
         <SectionHeader
           title="Ofertas"
-          viewAllHref="/ofertas"
-          viewAllText="Ver ofertas"
+          titleId="offers-title"
         />
 
         <div className="grid md:grid-cols-2 gap-4">
