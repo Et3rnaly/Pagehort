@@ -2,21 +2,18 @@
 // Core Domain Types - Zé das Frutas Hortifruti
 // =============================================================================
 
-/**
- * Product represents an item available for purchase
- */
-export interface Product {
-  id: number
-  name: string
-  pricePerKg?: string
-  pricePerKgOld?: string
-  priceUnit: string
-  unitInfo: string
-  discount?: string
-  isNew?: boolean
-  image: string
-  tag?: string
-}
+export type {
+  Database,
+  AdminUserInsert,
+  AdminUserRow,
+  AdminUserUpdate,
+  Product,
+  ProductFormState,
+  ProductInsert,
+  ProductRow,
+  ProductSection,
+  ProductUpdate,
+} from "./product"
 
 /**
  * Department represents a store section/category
