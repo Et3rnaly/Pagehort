@@ -12,7 +12,7 @@ export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
     const payload: LoginRequest = { email, password };
     const response = await authEndpoints.login(payload);
-    const { user, tokens } = response.data.data;
+    const { tokens } = response.data.data;
     
     setTokens(tokens.accessToken, tokens.refreshToken);
     
