@@ -3,15 +3,16 @@
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 import type { Product } from "@/src/types"
-import { parseBrazilianCurrency } from "./cart-utils"
+import { parseBrazilianCurrency } from "@/src/lib/formatters/currency"
 import type { CartItem } from "./types"
 
 interface CartState {
   items: CartItem[]
   addItem: (product: Product) => void
-  increaseItem: (productId: number) => void
-  decreaseItem: (productId: number) => void
-  removeItem: (productId: number) => void
+  increaseItem: (productId: Product["id"]) => void
+  decreaseItem: (productId: Product["id"]) => void
+  removeItem: (productId: Product["id"]) => void
+  replaceItems: (items: CartItem[]) => void
   clearCart: () => void
 }
 
@@ -24,7 +25,8 @@ function createCartItem(product: Product): CartItem {
     priceUnit: product.priceUnit,
     unitInfo: product.unitInfo,
     image: product.image,
-    unitPrice: parseBrazilianCurrency(product.priceUnit),
+    imageUrl: product.imageUrl,
+    unitPrice: product.price ?? parseBrazilianCurrency(product.priceUnit),
     quantity: 1,
   }
 }
@@ -69,6 +71,7 @@ export const useCartStore = create<CartState>()(
         set((state) => ({
           items: state.items.filter((item) => item.productId !== productId),
         })),
+      replaceItems: (items) => set({ items }),
       clearCart: () => set({ items: [] }),
     }),
     {

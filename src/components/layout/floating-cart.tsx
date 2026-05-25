@@ -2,11 +2,13 @@
 
 import { ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { CartSheet, getCartItemCount, useCartStore } from "@/src/features/cart"
+import { CartSheet } from "@/src/features/cart/cart-sheet"
+import { useCartStore } from "@/src/features/cart/cart-store"
 
 export function FloatingCart() {
-  const items = useCartStore((state) => state.items)
-  const itemCount = getCartItemCount(items)
+  const itemCount = useCartStore((state) =>
+    state.items.reduce((total, item) => total + item.quantity, 0)
+  )
   const badgeText = itemCount > 99 ? "99+" : String(itemCount)
 
   return (

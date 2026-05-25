@@ -1,4 +1,5 @@
 import { orderConfig } from "@/src/config/order"
+import { formatCurrency, parseBrazilianCurrency } from "@/src/lib/formatters/currency"
 import type { CartItem, CheckoutFormData, OrderType, PaymentMethod } from "./types"
 
 export const ORDER_TYPE_LABELS: Record<OrderType, string> = {
@@ -12,25 +13,7 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   card: "Cartão",
 }
 
-const currencyFormatter = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-})
-
-export function formatCurrency(value: number) {
-  return currencyFormatter.format(value)
-}
-
-export function parseBrazilianCurrency(value: string) {
-  const normalizedValue = value
-    .replace(/[^\d,.-]/g, "")
-    .replace(/\./g, "")
-    .replace(",", ".")
-
-  const price = Number(normalizedValue)
-
-  return Number.isFinite(price) ? price : 0
-}
+export { formatCurrency, parseBrazilianCurrency }
 
 export function getCartSubtotal(items: CartItem[]) {
   return items.reduce((total, item) => total + item.unitPrice * item.quantity, 0)

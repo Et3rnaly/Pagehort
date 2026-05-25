@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import type { FormEvent, ReactNode } from "react"
+import Image from "next/image"
 import { ArrowLeft, MessageCircle, Minus, Plus, ShoppingBasket, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { isRemoteImageSource } from "@/src/lib/images"
 import {
   buildWhatsAppOrderMessage,
   buildWhatsAppOrderUrl,
@@ -62,6 +64,7 @@ export function CartSheet({ children }: CartSheetProps) {
   const increaseItem = useCartStore((state) => state.increaseItem)
   const decreaseItem = useCartStore((state) => state.decreaseItem)
   const removeItem = useCartStore((state) => state.removeItem)
+  const replaceItems = useCartStore((state) => state.replaceItems)
   const clearCart = useCartStore((state) => state.clearCart)
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<CartStep>("cart")
@@ -103,6 +106,7 @@ export function CartSheet({ children }: CartSheetProps) {
             items={items}
             subtotal={subtotal}
             onBack={() => setStep("cart")}
+            onReplaceItems={replaceItems}
             onOrderStarted={handleOrderStarted}
           />
         )}
@@ -126,9 +130,9 @@ function CartReviewStep({
   subtotal: number
   onContinueShopping: () => void
   onCheckout: () => void
-  onIncrease: (productId: number) => void
-  onDecrease: (productId: number) => void
-  onRemove: (productId: number) => void
+  onIncrease: (productId: CartItem["productId"]) => void
+  onDecrease: (productId: CartItem["productId"]) => void
+  onRemove: (productId: CartItem["productId"]) => void
 }) {
   const hasItems = items.length > 0
 
@@ -208,15 +212,28 @@ function CartItemRow({
   onRemove,
 }: {
   item: CartItem
-  onIncrease: (productId: number) => void
-  onDecrease: (productId: number) => void
-  onRemove: (productId: number) => void
+  onIncrease: (productId: CartItem["productId"]) => void
+  onDecrease: (productId: CartItem["productId"]) => void
+  onRemove: (productId: CartItem["productId"]) => void
 }) {
   return (
     <article className="rounded-lg border border-border bg-card p-3 shadow-sm">
       <div className="flex gap-3">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted text-3xl">
-          {item.image}
+          {item.imageUrl ? (
+            <Image
+              src={item.imageUrl}
+              alt={item.name}
+              width={56}
+              height={56}
+              sizes="56px"
+              className="h-full w-full rounded-lg object-cover"
+              loading="lazy"
+              unoptimized={isRemoteImageSource(item.imageUrl)}
+            />
+          ) : (
+            item.image
+          )}
         </div>
 
         <div className="min-w-0 flex-1">
@@ -284,15 +301,18 @@ function CheckoutStep({
   items,
   subtotal,
   onBack,
+  onReplaceItems,
   onOrderStarted,
 }: {
   items: CartItem[]
   subtotal: number
   onBack: () => void
+  onReplaceItems: (items: CartItem[]) => void
   onOrderStarted: () => void
 }) {
   const [form, setForm] = useState<CheckoutFormData>(INITIAL_CHECKOUT_FORM)
   const [errors, setErrors] = useState<CheckoutFormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const updateField = <Field extends keyof CheckoutFormData>(
     field: Field,
@@ -302,7 +322,7 @@ function CheckoutStep({
     setErrors((currentErrors) => ({ ...currentErrors, [field]: undefined }))
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!items.length) {
@@ -315,10 +335,23 @@ function CheckoutStep({
 
     if (Object.keys(nextErrors).length > 0) return
 
-    const message = buildWhatsAppOrderMessage(form, items)
+    setIsSubmitting(true)
+    const currentItems = await refreshCartItems(items)
+
+    if (currentItems.length === 0) {
+      onReplaceItems([])
+      setIsSubmitting(false)
+      onBack()
+      return
+    }
+
+    onReplaceItems(currentItems)
+
+    const message = buildWhatsAppOrderMessage(form, currentItems)
     const url = buildWhatsAppOrderUrl(message)
 
     window.open(url, "_blank", "noopener,noreferrer")
+    setIsSubmitting(false)
     onOrderStarted()
   }
 
@@ -525,6 +558,7 @@ function CheckoutStep({
                 onChange={(event) => updateField("notes", event.target.value)}
                 placeholder="Ex.: escolher frutas mais maduras"
                 className="min-h-24 resize-none"
+                aria-label="Observações"
               />
             </CheckoutSection>
           </div>
@@ -535,14 +569,50 @@ function CheckoutStep({
             <span className="text-sm text-muted-foreground">Subtotal estimado</span>
             <strong className="text-lg text-primary">{formatCurrency(subtotal)}</strong>
           </div>
-          <Button type="submit" className="h-11 w-full rounded-full text-base">
+          <Button type="submit" className="h-11 w-full rounded-full text-base" disabled={isSubmitting}>
             <MessageCircle className="h-5 w-5" />
-            Abrir WhatsApp
+            {isSubmitting ? "Atualizando preços..." : "Abrir WhatsApp"}
           </Button>
         </div>
       </form>
     </>
   )
+}
+
+async function refreshCartItems(items: CartItem[]) {
+  try {
+    const response = await fetch("/api/products/current-prices", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productIds: items.map((item) => item.productId),
+      }),
+    })
+
+    if (!response.ok) return items
+
+    const payload = (await response.json()) as {
+      ok: boolean
+      items: Array<Omit<CartItem, "quantity">>
+    }
+
+    if (!payload.ok) return items
+
+    const currentItemsById = new Map(
+      payload.items.map((item) => [String(item.productId), item])
+    )
+
+    return items
+      .map((item) => {
+        const currentItem = currentItemsById.get(String(item.productId))
+        return currentItem ? { ...currentItem, quantity: item.quantity } : null
+      })
+      .filter((item): item is CartItem => item !== null)
+  } catch {
+    return items
+  }
 }
 
 function CheckoutSection({

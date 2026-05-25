@@ -1,9 +1,12 @@
+import type { Product } from "@/src/types"
+
 export interface CartItem {
-  productId: number
+  productId: Product["id"]
   name: string
   priceUnit: string
   unitInfo: string
   image: string
+  imageUrl?: string | null
   unitPrice: number
   quantity: number
 }
